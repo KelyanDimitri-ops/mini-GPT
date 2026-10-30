@@ -11,3 +11,4 @@ day3: 29/10/26
 
 day4: 30/10/26
   Ajout du fichier value.py qui joue le rôle de moteur similaire au engine.py de professeur karpathy, une étape assez difficile mais que j'ai pu traverser. Je vais commencer à faire le test sur pytorch pour vérifier que je suis sur la voie.
+Le test pour comparer les résultats avec pytorch a été un succès, malgré quelques erreurs ( corrigées ) au niveau du self.grad, qui initialisait le gradient à 0. On va avancer avec le modèle bigramme.
