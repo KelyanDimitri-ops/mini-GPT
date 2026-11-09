@@ -69,7 +69,7 @@ def test_autograd_vs_pytorch():
     assert math.isclose(c_mg.grad, c_pt.grad.item(), abs_tol=tol), \
         f"Erreur Gradient sur 'c': {c_mg.grad} != {c_pt.grad.item()}"
 
-    print("✅ TEST REUSSI : Micrograd et PyTorch donnent exactement les mêmes résultats !")
+    print(" Micrograd et PyTorch donnent exactement les mêmes résultats !")
     print(f"Forward  => Value: {res_mg.data:.8f} | PyTorch: {res_pt.item():.8f}")
     print(f"Grad 'a' => Value: {a_mg.grad:.8f} | PyTorch: {a_pt.grad.item():.8f}")
     print(f"Grad 'b' => Value: {b_mg.grad:.8f} | PyTorch: {b_pt.grad.item():.8f}")
