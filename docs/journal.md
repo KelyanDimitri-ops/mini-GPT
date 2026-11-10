@@ -11,3 +11,6 @@ day3: 29/10/26
 
 day4: 30/10/26
   Ajout du fichier value.py qui joue le rôle de moteur similaire au engine.py de professeur karpathy, une étape assez difficile mais que j'ai pu traverser. Je vais commencer à faire le test sur pytorch pour vérifier que je suis sur la voie.
+
+day5: 10/11/26
+  J'ai effectué le gros du travail ces derniers jours, ca m'a pris énormément de temps, surtout que j'ai eu un soucis avec mon ordinateur, mais mon modèle a déjà fait son premier entrainement, j'ai pu affichier les coube de perte et score bpb et j'ai ajouté quelques fichiers de traitements pour mon dataset; je continuerai à travailler dessus.
