@@ -15,3 +15,5 @@ checkpoints/*.pt
 .vscode/
 .idea/
 checkpoints/*.pt
+
+.idea/
