@@ -17,3 +17,7 @@ checkpoints/*.pt
 checkpoints/*.pt
 
 .idea/
+
+example_data/
+prepared/
+runs/
