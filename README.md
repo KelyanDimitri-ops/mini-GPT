@@ -24,7 +24,7 @@ A GPT built from scratch: autograd, BPE tokenizer, decoder-only transformer, plu
 └── generate.py            # Script d'inférence interactif
 
 # Lancer le projet
- 1. Vérifier le budget de paramètres (< 10M)
+ 1. Vérifier le budget de paramètres 
 python scripts/count_params.py
 
  2. Exécuter le pipeline de données
