@@ -5,11 +5,11 @@ mini-GPT codé from scratch (autograd, BPE, transformer) + pipeline de données 
 A GPT built from scratch: autograd, BPE tokenizer, decoder-only transformer, plus a French web-data pipeline. A lab pool project, ECE Paris.(EN)
 
 # Avancement
-- [ O] Mini-autograd 
-- [ O] Bigramme par comptage
-- [ O] Tokenizer BPE
-- [ O] Transformer décodeur
-- [ O] Pipeline de données
+- [x] Mini-autograd 
+- [x] Bigramme par comptage
+- [x] Tokenizer BPE
+- [x] Transformer décodeur
+- [x] Pipeline de données
 - [ ] Ablations-datasheet-soutenance
 
 # Structure du dépôt
@@ -17,14 +17,14 @@ A GPT built from scratch: autograd, BPE tokenizer, decoder-only transformer, plu
 ├── data_pipeline/         # Pipeline à 3 étapes (Clean, PII, MinHash)
 ├── gpt/                   # Code source du modèle Transformer
 ├── tokenizer/             # Tokenizer BPE personnalisé
-├── scripts/               # Scripts d'analyse (count_params, plot_metrics)
+├── Scripts/               # Scripts d'analyse (count_params, plot_metrics)
 ├── docs/                  # Visuels et graphique loss_curve.png
 ├── checkpoints/           # Checkpoints du modèle 
 ├── train.py               # Entraînement avec Cosine Decay & BPB
 └── generate.py            # Script d'inférence interactif
 
 # Lancer le projet
- 1. Vérifier le budget de paramètres (< 10M)
+ 1. Vérifier le budget de paramètres 
 python scripts/count_params.py
 
  2. Exécuter le pipeline de données
