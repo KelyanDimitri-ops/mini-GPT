@@ -2,8 +2,13 @@ import os
 import sys
 import time
 import math
+import io
 import torch
 import torch.nn as nn
+
+# Force l'encodage UTF-8 sous Windows pour éviter les plantages d'émojis
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 # Ajout du dossier racine au sys.path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
@@ -13,10 +18,10 @@ from tokenizer.tokenizer import Tokenizer
 
 
 def get_data_path(filename: str) -> str:
-    """Cherche automatiquement le fichier dans data/, data_pipeline/ ou à la racine."""
+    """Cherche automatiquement le fichier dans data_pipeline/, data/ ou à la racine."""
     candidates = [
-        os.path.join("data", filename),
         os.path.join("data_pipeline", filename),
+        os.path.join("data", filename),
         filename
     ]
     for path in candidates:
@@ -34,7 +39,7 @@ batch_size = 16   # Nombre de séquences par batch
 block_size = 256  # Longueur du contexte (T)
 n_layer = 6       # Nombre de blocs Transformer
 n_head = 6        # Nombre de têtes d'attention
-n_embd = 360      # Dimension des embeddings (~10.8M de paramètres)
+n_embd = 360      # Dimension des embeddings (~9.81M de paramètres)
 
 # Optimisation & Schedule
 learning_rate = 6e-4  # LR maximal
@@ -61,12 +66,15 @@ if not os.path.exists(tokenizer_path):
 tokenizer = Tokenizer.load(tokenizer_path)
 vocab_size = len(tokenizer.vocab) + len(tokenizer.special_tokens)
 
-# Recherche automatique des fichiers de corpus
-train_path = get_data_path("moliere_train.txt")
+# Chargement prioritaire du dataset dédupliqué par MinHash et filtré PII
+train_path = get_data_path("moliere_train_pipeline.txt")
+if not train_path:
+    train_path = get_data_path("moliere_train.txt")
+
 val_path = get_data_path("moliere_val.txt")
 
 if not train_path or not val_path:
-    print("⚠️ Fichiers moliere_train.txt et/ou moliere_val.txt introuvables dans data/ ou data_pipeline/.")
+    print("⚠️ Fichiers d'entraînement et/ou de validation introuvables.")
     sys.exit(1)
 
 with open(train_path, "r", encoding="utf-8") as f:
@@ -115,16 +123,11 @@ config = GPTConfig(
 model = GPT(config).to(device)
 
 
-
 def configure_optimizers(model, weight_decay, learning_rate, betas):
     """
-    Sépare les paramètres 2D (matrices de poids Linear & Embedding -> weight decay)
-    des paramètres 1D (biais et LayerNorm -> pas de weight decay).
-    Gère automatiquement le Weight Tying sans KeyError.
+    Sépare les paramètres 2D (matrices de poids) des 1D (biais, LayerNorm).
     """
-
     param_dict = {pn: p for pn, p in model.named_parameters() if p.requires_grad}
-
     decay_params = []
     nodecay_params = []
 
@@ -139,6 +142,7 @@ def configure_optimizers(model, weight_decay, learning_rate, betas):
         {"params": nodecay_params, "weight_decay": 0.0},
     ]
     return torch.optim.AdamW(optim_groups, lr=learning_rate, betas=betas)
+
 
 optimizer = configure_optimizers(model, weight_decay, learning_rate, (beta1, beta2))
 

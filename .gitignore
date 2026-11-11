@@ -1,9 +1,17 @@
+# Fichiers virtuels et Python
+.venv/
 __pycache__/
 *.pyc
-.venv/
-.env
-.ipynb_checkpoints/
-data/
-*.pt
-*.pth
-checkpoints/
+
+# Data & logs temporaires
+*.log
+metrics.csv
+
+# Weights PyTorch
+checkpoints/*.pt
+!checkpoints/ckpt_latest.pt
+
+# Fichiers IDE
+.vscode/
+.idea/
+checkpoints/*.pt

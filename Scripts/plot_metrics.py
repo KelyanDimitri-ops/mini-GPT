@@ -3,48 +3,50 @@ import re
 import matplotlib.pyplot as plt
 
 
-def parse_log_file(log_path: str):
-    """
-    Parse les logs d'entraînement pour extraire les métriques réelles.
-    """
-    iters, train_losses, val_losses = [], [], []
-    train_bpbs, val_bpbs = [], []
+def read_log_robustly(log_path: str) -> str:
+    """Lit le fichier de log en essayant plusieurs encodages (UTF-16 de PowerShell, UTF-8, Latin-1)."""
+    encodings = ["utf-16", "utf-16-le", "utf-8", "cp1252", "latin-1"]
+    for enc in encodings:
+        try:
+            with open(log_path, "r", encoding=enc) as f:
+                content = f.read()
+                if "Iter" in content:
+                    return content
+        except Exception:
+            continue
+    with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
+        return f.read()
 
+
+def parse_log_file(log_path: str):
     if not os.path.exists(log_path):
         return None
 
-    with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
-        content = f.read()
+    content = read_log_robustly(log_path)
 
-    # Regex tolérante prenant en compte la mention LR: 0.000xxx ---
-    pattern = (
-        r'---\s*\[Iter\s+(\d+)/\d+\].*?---\s*'
-        r'Train Loss:\s+([\d.]+)\s+nats\s*\|\s*Train BPB:\s+([\d.]+)\s*'
-        r'Val\s+Loss:\s+([\d.]+)\s+nats\s*\|\s*Val\s+BPB:\s+([\d.]+)'
-    )
+    iters = [int(x) for x in re.findall(r'\[Iter\s+(\d+)/\d+\]', content)]
+    train_losses = [float(x) for x in re.findall(r'Train Loss:\s+([\d.]+)', content)]
+    train_bpbs = [float(x) for x in re.findall(r'Train BPB:\s+([\d.]+)', content)]
+    val_losses = [float(x) for x in re.findall(r'Val\s+Loss:\s+([\d.]+)', content)]
+    val_bpbs = [float(x) for x in re.findall(r'Val\s+BPB:\s+([\d.]+)', content)]
 
-    matches = re.findall(pattern, content, re.DOTALL)
-    for it, tr_l, tr_b, val_l, val_b in matches:
-        iters.append(int(it))
-        train_losses.append(float(tr_l))
-        train_bpbs.append(float(tr_b))
-        val_losses.append(float(val_l))
-        val_bpbs.append(float(val_b))
+    n = min(len(iters), len(train_losses), len(train_bpbs), len(val_losses), len(val_bpbs))
+    if n == 0:
+        return None
 
-    return iters, train_losses, val_losses, train_bpbs, val_bpbs
+    return iters[:n], train_losses[:n], val_losses[:n], train_bpbs[:n], val_bpbs[:n]
 
 
 def generate_loss_curve(log_path: str = "train.log", output_path: str = "docs/loss_curve.png"):
     parsed = parse_log_file(log_path)
 
-    if parsed and len(parsed[0]) > 0:
+    if parsed:
         iters, train_losses, val_losses, train_bpbs, val_bpbs = parsed
-        print(f"✅ {len(iters)} points de mesure réels extraits depuis '{log_path}' !")
+        print(f"✅ {len(iters)} points de mesure réels extraits avec succès depuis '{log_path}' !")
     else:
-        print(f"⚠️ Aucun motif valide trouvé dans '{log_path}'. Vérifie le contenu du fichier.")
+        print(f"⚠️ Aucun motif valide trouvé dans '{log_path}'.")
         return
 
-    # Style visuel
     plt.style.use('seaborn-v0_8-whitegrid' if 'seaborn-v0_8-whitegrid' in plt.style.available else 'default')
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
 
@@ -66,7 +68,7 @@ def generate_loss_curve(log_path: str = "train.log", output_path: str = "docs/lo
     ax2.legend()
     ax2.grid(True, linestyle=":", alpha=0.6)
 
-    plt.suptitle("Performance du Modèle mini-GPT (Données Réelles)", fontsize=13, fontweight="bold", y=1.02)
+    plt.suptitle("Performance du Modèle mini-GPT (Corpus Dédupliqué - 9.81M)", fontsize=13, fontweight="bold", y=1.02)
     plt.tight_layout()
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
