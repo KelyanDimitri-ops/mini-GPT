@@ -3,30 +3,24 @@ import re
 import os
 
 
-def clean_text(text: str) -> str:
+def clean_text(text: str, normalize_typography: bool = False) -> str:
     """
-    Nettoie et normalise une chaîne de texte brut.
-    - Normalisation Unicode NFKC (harmonise ligatures et diacritiques)
-    - Suppression des caractères de contrôle non imprimables (hors \\n et \\t)
-    - Normalisation des guillemets et apostrophes
-    - Suppression des espaces horizontaux superflus
+    Par défaut : NFC seulement ; « » ’ œ … et les espaces insécables sont conservés.
+    normalize_typography=True : ancien comportement (NFKC + guillemets/apostrophes simplifiés).
     """
-    # 1. Normalisation Unicode NFKC
-    text = unicodedata.normalize("NFKC", text)
+    if normalize_typography:
+        text = unicodedata.normalize("NFKC", text)
+    else:
+        text = unicodedata.normalize("NFC", text)
 
-    # 2. Suppression des caractères de contrôle invisibles (conservant \n et \t)
     text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', text)
 
-    # 3. Standardisation des guillemets et apostrophes
-    text = re.sub(r'[«»“”]', '"', text)
-    text = re.sub(r"[’`‘]", "'", text)
+    if normalize_typography:
+        text = re.sub(r'[«»“”]', '"', text)
+        text = re.sub(r"[’`‘]", "'", text)
 
-    # 4. Réduction des espaces horizontaux multiples sans impacter les sauts de ligne
     text = re.sub(r'[ \t]+', ' ', text)
-
-    # 5. Limitation des sauts de ligne consécutifs à 2 maximum
     text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
-
     return text.strip()
 
 
