@@ -1,0 +1,18 @@
+{
+  "participant": "kelyan dimitri cheuffa",
+  "submitted": "2026-11-12T00:55:48+01:00",
+  "kit_version": "1.0",
+  "val_bpb": 1.3338221117936682,
+  "val_bpb_par_genre": {
+    "dialogue": 1.1486880863295281,
+    "encyclopedique": 1.4105018568262357,
+    "litteraire": 1.5507281745211758,
+    "presse": 1.2262597962246775
+  },
+  "dataset_sha256": "3360f196ea7853efe208a31fa9d682f7375e3d00afa81e1d4225d5db5162c4a9",
+  "tokenizer_sha256": "16db8dc6dfd18cdbe5f34e99571410078849246f51739babf012b03f6b8caa6a",
+  "dataset_url": "",
+  "note": "",
+  "device": "Tesla T4",
+  "train_time_s": 768.6
+}
